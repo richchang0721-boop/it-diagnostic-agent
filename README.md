@@ -1,3 +1,5 @@
+[English](README.en.md) | **繁體中文**
+
 # IT Diagnostic Agent — 智慧 IT 故障排除助手
 
 > 互動式決策樹 + Claude AI，專為 IT 工程師設計的免費開源診斷工具
