@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Diagnostic Agent — 智慧故障排除助手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f12;
+  --bg2: #13161b;
+  --bg3: #1a1e25;
+  --border: #252a33;
+  --border2: #2f3540;
+  --accent: #00d4aa;
+  --accent2: #0099ff;
+  --accent3: #ff6b35;
+  --warn: #f5a623;
+  --danger: #ff4444;
+  --text: #e2e8f0;
+  --text2: #8892a4;
+  --text3: #4a5568;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans TC', sans-serif;
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* LAYOUT */
+.app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 56px 1fr; height: 100vh; overflow: hidden; }
+
+/* TOPBAR */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: .02em;
+}
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-icon svg { width: 16px; height: 16px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.api-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  transition: background .3s;
+}
+.status-dot.ok { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.status-dot.err { background: var(--danger); }
+.btn-settings {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-settings:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-section { padding: 16px 14px 8px; }
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  transition: all .15s;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+  user-select: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--bg3); color: var(--accent); border-color: var(--border2); }
+.nav-item .nav-icon {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.nav-sub {
+  padding-left: 28px;
+  display: none;
+}
+.nav-sub.open { display: block; }
+.nav-sub-item {
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 12px;
+  transition: all .15s;
+  margin-bottom: 1px;
+}
+.nav-sub-item:hover { color: var(--text2); background: var(--bg3); }
+.nav-sub-item.active { color: var(--accent); }
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+.history-list { padding: 0 14px 14px; flex: 1; }
+.history-item {
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  transition: all .15s;
+}
+.history-item:hover { background: var(--bg3); border-color: var(--border); }
+.history-item .h-title { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-item .h-time { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* MAIN */
+.main { display: flex; flex-direction: column; overflow: hidden; }
+
+/* CONTENT AREA - split tree + chat */
+.content { display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; }
+
+/* TREE PANEL */
+.tree-panel {
+  overflow-y: auto;
+  padding: 20px;
+  border-right: 1px solid var(--border);
+}
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.panel-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.tab-row { display: flex; gap: 6px; margin-bottom: 18px; }
+.tab {
+  padding: 5px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all .15s;
+  background: transparent;
+}
+.tab:hover { color: var(--text2); border-color: var(--border2); }
+.tab.active { background: var(--bg3); color: var(--accent); border-color: var(--accent); }
+
+.tree-section { display: none; }
+.tree-section.active { display: block; }
+
+/* NODES */
+.node-root {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.node-root .node-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.node-root .node-title { font-size: 14px; font-weight: 500; color: var(--text); }
+.node-root .node-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+.node-grid { display: grid; gap: 8px; }
+.node-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.node-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.node-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.node-card:hover { border-color: var(--border2); background: var(--bg3); }
+.node-card.expanded { border-color: var(--accent2); }
+.node-card .node-badge {
+  display: inline-flex; align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.badge-teal { background: rgba(0,212,170,.12); color: var(--accent); border: 1px solid rgba(0,212,170,.25); }
+.badge-blue { background: rgba(0,153,255,.12); color: var(--accent2); border: 1px solid rgba(0,153,255,.25); }
+.badge-amber { background: rgba(245,166,35,.12); color: var(--warn); border: 1px solid rgba(245,166,35,.25); }
+.badge-red { background: rgba(255,68,68,.12); color: var(--danger); border: 1px solid rgba(255,68,68,.25); }
+.badge-gray { background: rgba(136,146,164,.1); color: var(--text2); border: 1px solid rgba(136,146,164,.2); }
+.badge-orange { background: rgba(255,107,53,.12); color: var(--accent3); border: 1px solid rgba(255,107,53,.25); }
+
+.node-card .nc-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.node-card .nc-sub { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.expand-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 8px;
+  display: flex; align-items: center; gap: 4px;
+}
+.expand-toggle svg { transition: transform .2s; }
+.node-card.expanded .expand-toggle svg { transform: rotate(90deg); }
+
+.node-detail {
+  display: none;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.node-card.expanded .node-detail { display: block; }
+.detail-group { margin-bottom: 10px; }
+.detail-group-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.step-list { list-style: none; }
+.step-list li {
+  font-size: 12px;
+  color: var(--text2);
+  padding: 3px 0;
+  display: flex;
+  gap: 8px;
+}
+.step-list li::before {
+  content: '›';
+  color: var(--accent);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+.ask-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent2);
+  background: rgba(0,153,255,.08);
+  border: 1px solid rgba(0,153,255,.2);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ask-btn:hover { background: rgba(0,153,255,.15); border-color: rgba(0,153,255,.4); }
+
+.section-sep {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin: 18px 0 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* CHAT PANEL */
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+.chat-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-header-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.chat-context {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.msg {
+  display: flex;
+  gap: 10px;
+  animation: fadeUp .2s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-avatar {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+}
+.msg.user .msg-avatar { background: rgba(0,153,255,.2); color: var(--accent2); }
+.msg.agent .msg-avatar { background: rgba(0,212,170,.15); color: var(--accent); }
+.msg-body { flex: 1; }
+.msg-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+.msg-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.65;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 13px;
+}
+.msg.user .msg-text {
+  background: rgba(0,153,255,.08);
+  border-color: rgba(0,153,255,.2);
+}
+.msg-text p { margin-bottom: 6px; }
+.msg-text p:last-child { margin-bottom: 0; }
+.msg-text ul { padding-left: 14px; margin: 4px 0; }
+.msg-text li { margin-bottom: 3px; font-size: 12px; color: var(--text2); }
+.msg-text code {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+.msg-text strong { color: var(--text); font-weight: 500; }
+.typing-indicator {
+  display: flex; gap: 4px; align-items: center;
+  padding: 10px 13px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.typing-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: typing 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes typing {
+  0%, 60%, 100% { opacity: .3; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.2); }
+}
+
+.chat-input-area {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+}
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.chat-input {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 9px 13px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  resize: none;
+  max-height: 100px;
+  outline: none;
+  transition: border-color .15s;
+  line-height: 1.5;
+}
+.chat-input:focus { border-color: var(--accent2); }
+.chat-input::placeholder { color: var(--text3); }
+.send-btn {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+  color: #0d0f12;
+}
+.send-btn:hover { background: #00f0c0; }
+.send-btn:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; }
+.chat-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 7px;
+  text-align: center;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 440px;
+  max-width: 94vw;
+}
+.modal-title {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+.form-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  outline: none;
+  transition: border-color .15s;
+  margin-bottom: 14px;
+}
+.form-input:focus { border-color: var(--accent2); }
+.modal-note {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.modal-note a { color: var(--accent2); text-decoration: none; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-cancel {
+  padding: 7px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-cancel:hover { border-color: var(--border2); color: var(--text); }
+.btn-save {
+  padding: 7px 18px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: #0d0f12;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-save:hover { background: #00f0c0; }
+
+/* EMPTY STATE */
+.chat-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.chat-empty-icon {
+  width: 48px; height: 48px;
+  background: rgba(0,212,170,.1);
+  border: 1px solid rgba(0,212,170,.2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.chat-empty-title { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+.chat-empty-sub { font-size: 12px; color: var(--text3); max-width: 240px; line-height: 1.6; margin-bottom: 16px; }
+.quick-btns { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 280px; }
+.quick-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  font-family: var(--sans);
+}
+.quick-btn:hover { border-color: var(--accent2); color: var(--text); background: var(--bg3); }
+
+/* NO API KEY warning */
+.no-key-banner {
+  background: rgba(245,166,35,.08);
+  border: 1px solid rgba(245,166,35,.25);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--warn);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+}
+.no-key-banner:hover { background: rgba(245,166,35,.14); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#0d0f12" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="8" cy="8" r="6"/>
+          <path d="M8 5v3l2 2"/>
+        </svg>
+      </div>
+      IT Diagnostic Agent
+    </div>
+    <div class="topbar-right">
+      <div class="api-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">未設定 API Key</span>
+      </div>
+      <button class="btn-settings" onclick="openModal()">設定 API Key</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">診斷模組</div>
+      <div class="nav-item active" onclick="switchSection('net', this)">
+        <div class="nav-icon" style="background:rgba(0,212,170,.15); color:var(--accent)">N</div>
+        網路問題
+        <div class="nav-dot" style="background:var(--accent)"></div>
+      </div>
+      <div class="nav-sub open" id="subnav-net">
+        <div class="nav-sub-item active" onclick="askQuestion('CCTV攝影機無法連線NVR的診斷流程')">CCTV 故障排除</div>
+        <div class="nav-sub-item" onclick="askQuestion('Wi-Fi連線不穩定的診斷方法')">Wi-Fi 問題</div>
+        <div class="nav-sub-item" onclick="askQuestion('ISP線路中斷時的緊急處理')">ISP / WAN</div>
+        <div class="nav-sub-item" onclick="askQuestion('DNS解析失敗的排查與修復')">DNS 問題</div>
+      </div>
+
+      <div class="nav-item" onclick="switchSection('hw', this)">
+        <div class="nav-icon" style="background:rgba(0,153,255,.15); color:var(--accent2)">H</div>
+        硬體問題
+        <div class="nav-dot" style="background:var(--accent2)"></div>
+      </div>
+      <div class="nav-sub" id="subnav-hw">
+        <div class="nav-sub-item" onclick="askQuestion('伺服器無法開機的完整診斷步驟')">主機 / 伺服器</div>
+        <div class="nav-sub-item" onclick="askQuestion('NAS RAID降級時的緊急處理')">NAS</div>
+        <div class="nav-sub-item" onclick="askQuestion('網路印表機無法列印的排查步驟')">印表機</div>
+        <div class="nav-sub-item" onclick="askQuestion('硬體RMA申請流程')">RMA / 更換</div>
+      </div>
+
+      <div class="nav-item" onclick="switchSection('sw', this)">
+        <div class="nav-icon" style="background:rgba(255,107,53,.15); color:var(--accent3)">S</div>
+        軟體問題
+        <div class="nav-dot" style="background:var(--accent3)"></div>
+      </div>
+      <div class="nav-sub" id="subnav-sw">
+        <div class="nav-sub-item" onclick="askQuestion('Active Directory DC複寫失敗的排查流程')">Active Directory</div>
+        <div class="nav-sub-item" onclick="askQuestion('SQL Server連線失敗的診斷步驟')">SQL Server</div>
+        <div class="nav-sub-item" onclick="askQuestion('Exchange郵件佇列卡住的排查方法')">Exchange</div>
+        <div class="nav-sub-item" onclick="askQuestion('Office授權問題的排查與修復')">Office</div>
+        <div class="nav-sub-item" onclick="askQuestion('Outlook無法連線Exchange的排查步驟')">Outlook</div>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section" style="padding-bottom:4px">
+      <div class="sidebar-label">對話記錄</div>
+    </div>
+    <div class="history-list" id="historyList">
+      <div style="font-size:11px;color:var(--text3);padding:4px 10px">尚無記錄</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content">
+
+      <!-- TREE PANEL -->
+      <div class="tree-panel">
+        <div class="panel-header">
+          <div class="panel-title">互動式診斷決策樹</div>
+        </div>
+        <div class="tab-row">
+          <button class="tab active" onclick="showTab('net', this)">網路</button>
+          <button class="tab" onclick="showTab('hw', this)">硬體</button>
+          <button class="tab" onclick="showTab('sw', this)">軟體</button>
+        </div>
+
+        <!-- NETWORK -->
+        <div class="tree-section active" id="section-net">
+          <div class="node-root">
+            <div class="node-tag">ENTRY // 網路診斷</div>
+            <div class="node-title">能 ping 通閘道？</div>
+            <div class="node-sub">確認本機 L3 連線 → 依結果選擇路徑</div>
+          </div>
+
+          <div class="node-grid cols-2">
+            <div>
+              <div class="section-sep">否 → 本機問題</div>
+              <div class="node-card" onclick="toggleCard(this)">
+                <div class="node-badge badge-amber">本機設定</div>
+                <div class="nc-title">IP / DNS / 閘道</div>
+                <div class="nc-sub">DHCP 衝突或靜態設定錯誤</div>
+                <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開步驟</div>
+                <div class="node-detail">
+                  <div class="detail-group">
+                    <div class="detail-group-title">排查步驟</div>
+                    <ul class="step-list">
+                      <li>執行 <code>ipconfig /all</code> 確認 IP 範圍</li>
+                      <li>釋放並重新取得：<code>ipconfig /release</code> → <code>/renew</code></li>
+                      <li>確認預設閘道與子網路遮罩正確</li>
+                      <li>排除 IP 衝突：<code>arp -a</code></li>
+                      <li>檢查網路卡驅動是否正常</li>
+                    </ul>
+                  </div>
+                  <button class="ask-btn" onclick="askQuestion('本機IP設定問題的完整排查步驟與常見原因')">詢問 AI ↗</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="section-sep">是 → 往上排查</div>
+              <div class="node-card" onclick="toggleCard(this)">
+                <div class="node-badge badge-amber">DNS 解析</div>
+                <div class="nc-title">nslookup / DNS 正常？</div>
+                <div class="nc-sub">能解析網域名稱嗎？</div>
+                <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開步驟</div>
+                <div class="node-detail">
+                  <ul class="step-list">
+                    <li><code>nslookup google.com</code> 確認 DNS 回應</li>
+                    <li>改用 <code>8.8.8.8</code> 測試是否 DNS Server 問題</li>
+                    <li>清除 DNS 快取：<code>ipconfig /flushdns</code></li>
+                    <li>確認防火牆未封鎖 UDP 53</li>
+                  </ul>
+                  <button class="ask-btn" onclick="askQuestion('DNS解析失敗的完整排查流程，包含常見錯誤碼說明')">詢問 AI ↗</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep" style="margin-top:18px">特定設備類別</div>
+          <div class="node-grid cols-3">
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-blue">CCTV</div>
+              <div class="nc-title">CCTV 故障排除</div>
+              <div class="nc-sub">IP Cam / NVR / DVR</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">無影像 / 斷線</div>
+                  <ul class="step-list">
+                    <li>確認 PoE Switch port 供電正常</li>
+                    <li>Ping IP Camera IP 位址</li>
+                    <li>確認 NVR 頻道 IP 對應設定</li>
+                    <li>ONVIF 協定版本相容性確認</li>
+                    <li>硬體 Reset 重置攝影機 IP</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">影像品質問題</div>
+                  <ul class="step-list">
+                    <li>確認頻寬足夠（HD 約 2-4 Mbps/路）</li>
+                    <li>H.264 → H.265 節省頻寬</li>
+                    <li>QoS 設定優先 CCTV 流量</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">遠端存取問題</div>
+                  <ul class="step-list">
+                    <li>Port forwarding 80/554/8080</li>
+                    <li>DDNS 設定確認</li>
+                    <li>建議使用 VPN 安全存取</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('CCTV攝影機完全無影像，NVR顯示離線，PoE供電正常，請給我詳細排查步驟')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-blue">Wi-Fi</div>
+              <div class="nc-title">無線網路</div>
+              <div class="nc-sub">AP / 訊號 / 認證</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <ul class="step-list">
+                  <li>確認 AP 電源與 LED 燈號狀態</li>
+                  <li>SSID 廣播是否開啟</li>
+                  <li>WPA2/WPA3 密碼確認</li>
+                  <li>頻道干擾：切換 2.4G ↔ 5GHz</li>
+                  <li>802.1X 認證 → 檢查 RADIUS</li>
+                </ul>
+                <button class="ask-btn" onclick="askQuestion('辦公室Wi-Fi連線不穩定，部分電腦無法連線，請協助診斷')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-red">ISP</div>
+              <div class="nc-title">上游 ISP 問題</div>
+              <div class="nc-sub">WAN 線路故障</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <ul class="step-list">
+                  <li><code>ping 8.8.8.8</code> 測試 ISP 連線</li>
+                  <li><code>tracert</code> 找出斷點位置</li>
+                  <li>重開數據機（等待 30 秒）</li>
+                  <li>聯繫 ISP 報修，記錄案號</li>
+                  <li>啟用備援 4G/5G Router</li>
+                </ul>
+                <button class="ask-btn" onclick="askQuestion('ISP線路全斷，如何快速切換備援網路，有哪些注意事項？')">詢問 AI ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HARDWARE -->
+        <div class="tree-section" id="section-hw">
+          <div class="node-root">
+            <div class="node-tag">ENTRY // 硬體診斷</div>
+            <div class="node-title">選擇設備類型</div>
+            <div class="node-sub">主機 / NAS / 印表機 → 依設備展開診斷</div>
+          </div>
+
+          <div class="node-grid cols-3">
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-blue">主機</div>
+              <div class="nc-title">伺服器 / PC</div>
+              <div class="nc-sub">開機、POST、效能</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">無法開機</div>
+                  <ul class="step-list">
+                    <li>確認電源線、排除 UPS 問題</li>
+                    <li>無 POST → 逐一移除 RAM 測試</li>
+                    <li>BIOS Beep 碼對照硬體錯誤</li>
+                    <li>CMOS 電池更換（時鐘失效）</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">效能異常</div>
+                  <ul class="step-list">
+                    <li>CPU/記憶體監控，找出瓶頸</li>
+                    <li>清潔散熱器、更換散熱膏</li>
+                    <li>memtest86 記憶體診斷</li>
+                    <li>HDD/SSD SMART 狀態確認</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('伺服器開機後沒有POST畫面，無任何Beep聲，請給我診斷步驟')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-blue">NAS</div>
+              <div class="nc-title">NAS 故障排除</div>
+              <div class="nc-sub">儲存 / RAID / 存取</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">無法存取</div>
+                  <ul class="step-list">
+                    <li>確認 NAS IP 可被 ping 到</li>
+                    <li>SMB/NFS 服務是否啟動</li>
+                    <li>防火牆 445/2049 port 開放</li>
+                    <li>帳號權限與共享資料夾設定</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">RAID 降級</div>
+                  <ul class="step-list">
+                    <li>管理介面確認 RAID 狀態</li>
+                    <li>識別故障磁碟（燈號/日誌）</li>
+                    <li>熱插拔更換故障碟</li>
+                    <li>RAID 重建期間禁止關機</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Synology NAS RAID1出現降級警告，一顆硬碟故障，緊急處理步驟')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-blue">印表機</div>
+              <div class="nc-title">印表機故障</div>
+              <div class="nc-sub">網路 / 驅動 / 硬體</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">無法列印</div>
+                  <ul class="step-list">
+                    <li>確認電源與 Ready 燈號</li>
+                    <li>清除卡紙與列印佇列</li>
+                    <li>重啟 Print Spooler 服務</li>
+                    <li>重新安裝驅動程式</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">網路印表機離線</div>
+                  <ul class="step-list">
+                    <li>Ping 印表機 IP 確認連線</li>
+                    <li>設定靜態 IP 避免 DHCP 變動</li>
+                    <li>GPO 印表機部署設定確認</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Windows 11 電腦無法連線網路印表機，顯示離線，如何排查？')">詢問 AI ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep">通用處理流程</div>
+          <div class="node-grid cols-3">
+            <div class="node-card" onclick="askQuestion('硬體設備RMA申請流程與需要準備的資料')">
+              <div class="node-badge badge-red">嚴重故障</div>
+              <div class="nc-title">硬體更換 / RMA</div>
+              <div class="nc-sub">不可修復 → 申請更換</div>
+            </div>
+            <div class="node-card" onclick="askQuestion('IT設備預防性維護計劃，包含主機、NAS、印表機的巡檢項目')">
+              <div class="node-badge badge-gray">預防維護</div>
+              <div class="nc-title">定期巡檢</div>
+              <div class="nc-sub">清潔、韌體、備份驗證</div>
+            </div>
+            <div class="node-card" onclick="askQuestion('IT硬體設備資產管理清單的建立方式與追蹤欄位建議')">
+              <div class="node-badge badge-gray">資產管理</div>
+              <div class="nc-title">設備台帳更新</div>
+              <div class="nc-sub">序號、保固、位置記錄</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SOFTWARE -->
+        <div class="tree-section" id="section-sw">
+          <div class="node-root">
+            <div class="node-tag">ENTRY // 軟體診斷</div>
+            <div class="node-title">選擇系統 / 應用程式</div>
+            <div class="node-sub">AD / SQL / Exchange / Office / Outlook</div>
+          </div>
+
+          <div class="node-grid cols-2">
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-orange">Active Directory</div>
+              <div class="nc-title">AD 問題</div>
+              <div class="nc-sub">帳號 / GPO / DC 複寫</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">帳號 / 登入問題</div>
+                  <ul class="step-list">
+                    <li>帳號鎖定：<code>Unlock-ADAccount</code></li>
+                    <li>密碼重設與過期政策確認</li>
+                    <li>Kerberos 票證問題：<code>klist purge</code></li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">GPO 問題</div>
+                  <ul class="step-list">
+                    <li><code>gpresult /h report.html</code> 生成報告</li>
+                    <li><code>gpupdate /force</code> 強制套用</li>
+                    <li>確認 WMI Filter 條件</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">DC 複寫 / 轉移</div>
+                  <ul class="step-list">
+                    <li><code>repadmin /replsummary</code> 確認狀態</li>
+                    <li><code>dcdiag /test:replications</code></li>
+                    <li>FSMO 角色轉移程序</li>
+                    <li><code>w32tm /resync</code> 時間同步</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Active Directory DC複寫失敗，repadmin顯示錯誤，完整排查流程')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-orange">SQL Server</div>
+              <div class="nc-title">SQL 問題</div>
+              <div class="nc-sub">連線 / 效能 / 備份</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">連線失敗</div>
+                  <ul class="step-list">
+                    <li>確認 SQL Server 服務是否運行</li>
+                    <li><code>telnet 伺服器 1433</code> 測試連接埠</li>
+                    <li>防火牆 TCP 1433 規則確認</li>
+                    <li>Named Instance → 啟用 SQL Browser</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">效能問題</div>
+                  <ul class="step-list">
+                    <li>Activity Monitor 找出 blocking query</li>
+                    <li>索引重建：<code>ALTER INDEX REBUILD</code></li>
+                    <li>tempdb 多檔案調整</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('SQL Server 2019連線失敗，錯誤碼18456，如何診斷與修復')">詢問 AI ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="node-grid cols-3" style="margin-top:8px">
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-orange">Exchange</div>
+              <div class="nc-title">Exchange 問題</div>
+              <div class="nc-sub">郵件流程 / 佇列 / 遷移</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">郵件無法收發</div>
+                  <ul class="step-list">
+                    <li><code>Get-Queue</code> 查看佇列</li>
+                    <li><code>Test-Mailflow</code> 測試</li>
+                    <li>MX / SPF / DKIM 確認</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">遷移至 M365</div>
+                  <ul class="step-list">
+                    <li>Hybrid Configuration Wizard</li>
+                    <li>MRS Proxy 端點啟用</li>
+                    <li>DNS 切換時機規劃</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Exchange郵件佇列大量累積，郵件無法送出，如何緊急處理')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-orange">Office</div>
+              <div class="nc-title">Office 問題</div>
+              <div class="nc-sub">安裝 / 啟用 / 修復</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">授權問題</div>
+                  <ul class="step-list">
+                    <li><code>ospp.vbs /dstatus</code> 確認授權</li>
+                    <li>KMS 伺服器連線確認</li>
+                    <li>M365 授權指派（AAD）</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">修復安裝</div>
+                  <ul class="step-list">
+                    <li>Online Repair（保留設定）</li>
+                    <li>Quick Repair（快速修復）</li>
+                    <li>停用衝突 COM Add-in</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Office 365 顯示「產品停用」，KMS授權問題如何排查修復')">詢問 AI ↗</button>
+              </div>
+            </div>
+
+            <div class="node-card" onclick="toggleCard(this)">
+              <div class="node-badge badge-orange">Outlook</div>
+              <div class="nc-title">Outlook 問題</div>
+              <div class="nc-sub">設定 / 同步 / 故障</div>
+              <div class="expand-toggle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg> 展開</div>
+              <div class="node-detail">
+                <div class="detail-group">
+                  <div class="detail-group-title">無法開啟 / 當機</div>
+                  <ul class="step-list">
+                    <li>安全模式：<code>outlook /safe</code></li>
+                    <li>重建設定檔：<code>outlook /cleanprofile</code></li>
+                    <li>刪除 OST 重新同步</li>
+                    <li><code>scanpst.exe</code> 修復 PST</li>
+                  </ul>
+                </div>
+                <div class="detail-group">
+                  <div class="detail-group-title">遷移 / 設定</div>
+                  <ul class="step-list">
+                    <li>Autodiscover 自動設定確認</li>
+                    <li>現代驗證 OAuth 2.0 設定</li>
+                    <li>匯出 PST 備份設定</li>
+                  </ul>
+                </div>
+                <button class="ask-btn" onclick="askQuestion('Outlook 2021無法連線Exchange Server，顯示需要密碼，OAuth問題排查')">詢問 AI ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep">解決方案層</div>
+          <div class="node-grid cols-3">
+            <div class="node-card" onclick="askQuestion('Windows事件日誌分析方法，如何快速找出IT問題根因')">
+              <div class="node-badge badge-amber">日誌分析</div>
+              <div class="nc-title">Event Viewer</div>
+              <div class="nc-sub">錯誤碼與根因分析</div>
+            </div>
+            <div class="node-card" onclick="askQuestion('IT問題升級二線支援時需要準備哪些資訊和日誌')">
+              <div class="node-badge badge-red">升級二線</div>
+              <div class="nc-title">升級支援</div>
+              <div class="nc-sub">附日誌 + 操作記錄</div>
+            </div>
+            <div class="node-card" onclick="askQuestion('IT問題解決後如何撰寫知識庫文章和更新Runbook')">
+              <div class="node-badge badge-teal">已解決</div>
+              <div class="nc-title">關閉 Ticket</div>
+              <div class="nc-sub">記錄解法 + KB 更新</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT PANEL -->
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="chat-header-title">AI 診斷助手</div>
+          <div class="chat-context" id="chatContext">claude-sonnet-4-20250514</div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-empty" id="chatEmpty">
+            <div class="chat-empty-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div class="chat-empty-title">IT 診斷助手待命中</div>
+            <div class="chat-empty-sub">點擊決策樹節點或直接輸入問題，AI 將提供詳細診斷步驟</div>
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="askQuestion('CCTV攝影機突然全部斷線，NVR顯示離線，如何快速診斷')">CCTV 全部斷線怎麼辦？</button>
+              <button class="quick-btn" onclick="askQuestion('用戶無法登入AD，帳號顯示鎖定，如何處理')">AD 帳號被鎖定</button>
+              <button class="quick-btn" onclick="askQuestion('Exchange郵件全部卡在佇列，緊急處理步驟')">Exchange 郵件卡佇列</button>
+              <button class="quick-btn" onclick="askQuestion('NAS RAID降級警告，需要立即做什麼')">NAS RAID 降級警告</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div id="noKeyBanner" class="no-key-banner" onclick="openModal()" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            尚未設定 API Key — 點此設定後即可使用 AI 診斷功能
+          </div>
+          <div class="chat-input-row">
+            <textarea class="chat-input" id="chatInput" placeholder="描述你遇到的 IT 問題..." rows="1"
+              onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="送出">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="chat-hint">Enter 送出 · Shift+Enter 換行 · 需要 Anthropic API Key</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">設定 Anthropic API Key</div>
+    <div class="modal-sub">API Key 僅儲存於瀏覽器本地，不會上傳至任何伺服器</div>
+    <label class="form-label">API Key</label>
+    <input class="form-input" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+    <div class="modal-note">
+      尚無 API Key？前往 <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> 免費申請。<br>
+      本工具直接從瀏覽器呼叫 Anthropic API，不需要後端伺服器。
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-save" onclick="saveApiKey()">儲存並連線</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `你是一位資深 IT 工程師，專精於企業 IT 基礎設施的故障排除與維護。
+
+你的專業範疇包括：
+- 網路問題：CCTV/IP Camera、Wi-Fi、DNS、VPN、VLAN、防火牆
+- 硬體：Windows Server、NAS（Synology/QNAP）、印表機、UPS
+- 軟體：Active Directory、SQL Server、Exchange Server、Microsoft 365、Office、Outlook
+
+回應風格：
+- 使用繁體中文
+- 先給出關鍵診斷問題（快速縮小範圍）
+- 提供具體命令列指令（用 code block 格式）
+- 依嚴重程度排列步驟
+- 結尾加上「預防建議」一行
+- 語氣專業但簡潔，避免廢話`;
+
+let apiKey = localStorage.getItem('it_diag_apikey') || '';
+let chatHistory = [];
+let sessionHistory = JSON.parse(localStorage.getItem('it_diag_history') || '[]');
+let isLoading = false;
+
+function init() {
+  updateStatus();
+  renderHistory();
+  if (!apiKey) {
+    document.getElementById('noKeyBanner').style.display = 'flex';
+  }
+}
+
+function updateStatus() {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  if (apiKey) {
+    dot.className = 'status-dot ok';
+    text.textContent = 'API 已連線';
+    document.getElementById('noKeyBanner').style.display = 'none';
+  } else {
+    dot.className = 'status-dot';
+    text.textContent = '未設定 API Key';
+    document.getElementById('noKeyBanner').style.display = 'flex';
+  }
+}
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('apiKeyInput').value = apiKey;
+  setTimeout(() => document.getElementById('apiKeyInput').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  apiKey = val;
+  localStorage.setItem('it_diag_apikey', apiKey);
+  updateStatus();
+  closeModal();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tree-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('section-' + id).classList.add('active');
+}
+
+function switchSection(id, el) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.nav-sub').forEach(s => s.classList.remove('open'));
+  el.classList.add('active');
+  document.getElementById('subnav-' + id).classList.add('open');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tree-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab')[['net','hw','sw'].indexOf(id)].classList.add('active');
+  document.getElementById('section-' + id).classList.add('active');
+}
+
+function toggleCard(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  card.classList.toggle('expanded');
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function askQuestion(q) {
+  document.getElementById('chatInput').value = q;
+  autoResize(document.getElementById('chatInput'));
+  sendMessage();
+}
+
+function addMessage(role, text) {
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.remove();
+
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `
+    <div class="msg-avatar">${role === 'user' ? 'YOU' : 'AI'}</div>
+    <div class="msg-body">
+      <div class="msg-name">${role === 'user' ? '使用者' : 'IT Diagnostic Agent'}</div>
+      <div class="msg-text">${formatMessage(text)}</div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function formatMessage(text) {
+  return text
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, '<code>$2</code>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n- /g, '\n• ')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+
+function addTyping() {
+  const empty = document.getElementById('chatEmpty');
+  if (empty) empty.remove();
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg agent';
+  div.id = 'typingMsg';
+  div.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-body">
+      <div class="msg-name">IT Diagnostic Agent</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingMsg');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  if (!apiKey) {
+    openModal();
+    return;
+  }
+
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  addTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      removeTyping();
+      addMessage('agent', `⚠️ API 錯誤：${data.error.message}`);
+    } else {
+      const reply = data.content[0].text;
+      removeTyping();
+      addMessage('agent', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+      saveToHistory(text, reply);
+    }
+  } catch (e) {
+    removeTyping();
+    addMessage('agent', `⚠️ 連線失敗，請確認 API Key 是否正確，或網路是否正常。\n\n錯誤：${e.message}`);
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+function saveToHistory(q, a) {
+  const item = {
+    id: Date.now(),
+    title: q.slice(0, 36) + (q.length > 36 ? '...' : ''),
+    time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+    q, a
+  };
+  sessionHistory.unshift(item);
+  sessionHistory = sessionHistory.slice(0, 20);
+  localStorage.setItem('it_diag_history', JSON.stringify(sessionHistory));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!sessionHistory.length) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 10px">尚無記錄</div>';
+    return;
+  }
+  list.innerHTML = sessionHistory.slice(0, 8).map(item => `
+    <div class="history-item" onclick="replayHistory('${item.id}')">
+      <div class="h-title">${item.title}</div>
+      <div class="h-time">${item.time}</div>
+    </div>`).join('');
+}
+
+function replayHistory(id) {
+  const item = sessionHistory.find(h => h.id == id);
+  if (!item) return;
+  document.getElementById('chatInput').value = item.q;
+  autoResize(document.getElementById('chatInput'));
+}
+
+init();
+</script>
+</body>
+</html>
