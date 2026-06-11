@@ -2,134 +2,138 @@
 
 # IT Diagnostic Agent — Smart IT Troubleshooting Assistant
 
-> Interactive decision tree + Claude AI — a free, open-source diagnostic tool built for IT engineers
+> Interactive decision tree + AI diagnostics — free, open-source, built for IT engineers
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Static](https://img.shields.io/badge/deploy-static%20HTML-blue)
-![Claude](https://img.shields.io/badge/powered%20by-Claude%20API-orange)
+![Multi-LLM](https://img.shields.io/badge/LLM-Claude%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Ollama-orange)
 
 ---
 
 ## Features
 
-- **Interactive Decision Tree** — Network, Hardware, and Software diagnostic modules
-- **Claude AI Integration** — Enter your own API Key and call Claude directly from the browser for AI-powered diagnostic advice
-- **Zero-dependency Deployment** — Pure static HTML, no backend or server required — just fork and use
-- **Chat History** — Automatically saved to browser localStorage
-- **Traditional Chinese UI** — Designed for Taiwan / Hong Kong IT environments
+- **Interactive Decision Tree** — Network, Hardware, Software diagnostic modules
+- **Runbook Mode** — Hide AI panel, pure decision tree for enterprise SOP demos
+- **Multi-Model Support** — Claude, Gemini, OpenAI-compatible, Ollama local models
+- **Ollama Setup Guide** — Confirmation checklist when switching to local model
+- **Dark / Light Theme** — One-click toggle, saved automatically
+- **Zero-dependency** — Pure static HTML, no backend required
+- **Traditional Chinese / English** bilingual interface
 
-## Coverage
+---
 
-### Network Issues
-- CCTV / IP Camera / NVR troubleshooting
-- Wi-Fi / AP / 802.1X authentication problems
-- DNS resolution failures
-- ISP line outages and failover switching
+## Supported AI Models
 
-### Hardware Issues
-- Server / PC (POST failures, boot issues, performance)
-- NAS (Synology / QNAP RAID degradation, access issues)
-- Printers (network printing, drivers, Print Spooler)
-- Hardware RMA process
+| Provider | Notes | API Key |
+|----------|-------|---------|
+| Claude (Anthropic) | Default, best diagnostic quality | ✅ Required |
+| Gemini (Google) | Fast, cost-efficient | ✅ Required |
+| OpenAI-compatible | Works with Kimi, Groq, DeepSeek, etc. | ✅ Required |
+| **Ollama (Local)** | Fully offline, zero cost, data stays on-premise | ❌ Not needed |
 
-### Software Issues
-| System | Coverage |
-|--------|----------|
-| Active Directory | Account lockout, GPO, DC replication, FSMO transfer |
-| SQL Server | Connection failures, performance tuning, backup/restore, Always On |
-| Exchange Server | Mail queue, SPF/DKIM, migration to M365 |
-| Office | Deployment, KMS licensing, repair |
-| Outlook | Autodiscover, OST repair, OAuth 2.0 |
+### Recommended Local Models
+
+| Model | Params | Use Case |
+|-------|--------|----------|
+| Gemma 3 12B | 12B | Personal use, fast |
+| Gemma 3 72B | 72B | High quality, needs more VRAM |
+| Gemma 4 E2B / E4B | 2B / 4B | Low-resource, lightweight |
+| Qwen3 8B | 8B | Chinese-optimized |
+| Qwen3.6 35B-A3B | 35B | High quality MoE, efficient |
+
+---
+
+## Enterprise Deployment — 3 Phases
+
+### Phase 1: Runbook Mode Only (Start Here)
+Click the 📋 button to enable Runbook Mode — hides AI panel, shows decision tree only.
+- Zero security risk, no external connections
+- Let new staff follow the decision tree to validate your IT workflows
+
+### Phase 2: Cloud LLM (Low-sensitivity cases)
+Good for: Printers, Outlook, DNS, Wi-Fi, NAS.
+**Never input**: passwords, IP tables, AD admin accounts, VPN configs.
+
+### Phase 3: Local Model (High-security environments)
+Run Ollama on-premise — data never leaves the company network.
 
 ---
 
 ## Quick Start
 
-### Option 1: GitHub Pages (Recommended)
-
+### GitHub Pages (Recommended)
 1. Fork this repository
-2. Go to Settings → Pages → Source, select `main` branch
-3. Wait a few minutes, then visit `https://your-username.github.io/it-diagnostic-agent`
+2. Settings → Pages → Source: `main` branch
+3. Visit `https://your-username.github.io/it-diagnostic-agent`
 
-### Option 2: Run Locally
-
+### Run Locally
 ```bash
-git clone https://github.com/your-username/it-diagnostic-agent.git
-cd it-diagnostic-agent
-# Open index.html directly in your browser
+git clone https://github.com/richchang0721-boop/it-diagnostic-agent.git
 open index.html
 ```
 
-### Get an API Key
+---
 
-1. Go to [console.anthropic.com](https://console.anthropic.com)
-2. Create an account and generate an API Key (free credits for new accounts)
-3. Click "Set API Key" in the top-right corner of the tool and paste it in
+## Ollama Setup
 
-> **Privacy Note**: Your API Key is stored only in your browser's `localStorage` and is never sent to any third-party server. Every conversation calls the Anthropic API directly from your browser.
+### Local Deployment
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh   # Linux/Mac
+# Windows: download installer from ollama.com
+
+# Pull a model
+ollama pull gemma3:12b       # Recommended starter
+ollama pull qwen3:8b         # Chinese-optimized
+ollama pull gemma4:e2b       # Lightweight
+
+# Start service
+ollama serve
+# Endpoint: http://localhost:11434
+```
+
+### LAN Deployment (Company-wide)
+```bash
+# Allow external connections
+export OLLAMA_HOST=0.0.0.0
+ollama serve
+
+# Open port 11434 in firewall
+# Client endpoint: http://192.168.x.x:11434
+```
+
+### Access Control Options
+
+| Method | Description | Complexity |
+|--------|-------------|------------|
+| Network isolation | Bind Ollama to internal IP only | ⭐ Easy |
+| VPN control | Requires VPN, integrates with AD | ⭐⭐ Medium |
+| Nginx + Basic Auth | Reverse proxy with password | ⭐⭐ Medium |
+| OpenID / LDAP | AD account integration, enterprise-grade | ⭐⭐⭐ Complex |
 
 ---
 
-## Architecture
+## Coverage
 
-```
-index.html (single file)
-├── Pure HTML/CSS/JS — no external dependencies
-├── Decision Tree UI — interactive expandable nodes
-├── Claude API calls — direct fetch() to api.anthropic.com
-└── localStorage — API Key and chat history storage
-```
+### Network
+- CCTV / IP Camera / NVR (PoE, offline cameras, remote access)
+- Wi-Fi / AP / 802.1X authentication
+- DNS resolution failures
+- ISP outages and failover
 
-**Why a single HTML file?**
-- Anyone can download and use it immediately — no `npm install` needed
-- Zero-config GitHub Pages deployment
-- Easy to fork and customize
+### Hardware
+- Server / PC (POST failures, boot issues, performance)
+- NAS (RAID degradation, SMB/NFS access)
+- Printers (network printing, drivers, Print Spooler)
 
----
-
-## Customization
-
-### Modify Diagnostic Content
-
-Find the relevant `tree-section` in `index.html` and edit the node content directly:
-
-```html
-<div class="node-card" onclick="toggleCard(this)">
-  <div class="node-badge badge-blue">Your Category</div>
-  <div class="nc-title">Issue Title</div>
-  <div class="nc-sub">Short description</div>
-  <div class="node-detail">
-    <!-- Add your diagnostic steps here -->
-  </div>
-</div>
-```
-
-### Modify the AI System Prompt
-
-Find the `SYSTEM_PROMPT` variable and adjust the AI's response style and area of expertise:
-
-```javascript
-const SYSTEM_PROMPT = `You are a senior IT engineer...`;
-```
-
-### Add a New Language
-
-Copy the entire HTML file and replace the Chinese text with your target language.
-
----
-
-## Screenshots
-
-*(Add screenshots after deployment)*
-
----
-
-## Contributing
-
-PRs are welcome! Areas especially needed:
-- More diagnostic scenarios (VMware, Hyper-V, Linux Server)
-- Additional language versions
-- ITSM tool integrations for other regions (Jira, ServiceNow)
+### Software
+| System | Coverage |
+|--------|----------|
+| Active Directory | Account lockout, GPO, DC replication, FSMO transfer |
+| SQL Server | Connection failures, performance, backup/restore |
+| Exchange Server | Mail queue, SPF/DKIM, migration to M365 |
+| Office | Deployment, KMS licensing, repair |
+| Outlook | Autodiscover, OST repair, OAuth 2.0 |
 
 ---
 
@@ -141,5 +145,7 @@ MIT License — free to use, modify, and use commercially
 
 ## Resources
 
-- [Anthropic API Docs](https://docs.anthropic.com)
-- [Claude Models Overview](https://docs.anthropic.com/en/docs/models-overview)
+- [Anthropic API](https://console.anthropic.com)
+- [Gemini API](https://aistudio.google.com)
+- [Ollama](https://ollama.com)
+- [Live Demo](https://richchang0721-boop.github.io/it-diagnostic-agent)
