@@ -245,8 +245,9 @@ body.light .history-item:hover{background:#f0f2f5}
 /* Runbook mode */
 .btn-runbook{display:flex;align-items:center;gap:5px}
 .btn-runbook.active{border-color:var(--accent)!important;color:var(--accent)!important;background:rgba(0,212,170,.08)!important}
-body.runbook-mode .chat-panel{display:none}
-body.runbook-mode .content{grid-template-columns:1fr}
+body.runbook-mode .chat-panel{display:none!important}
+body.runbook-mode .content{grid-template-columns:1fr!important;grid-template-rows:1fr!important}
+body.runbook-mode .tree-panel{border-right:none!important}
 </style>
 </head>
 <body>
@@ -819,6 +820,7 @@ const I = {
 
 let lang = localStorage.getItem('it_lang') || 'zh';
 let theme = localStorage.getItem('it_theme') || 'dark';
+let runbookMode = localStorage.getItem('it_runbook') === 'true';
 let currentProvider = localStorage.getItem('it_provider') || 'claude';
 let chatHistory = [];
 let sessionHistory = JSON.parse(localStorage.getItem('it_hist') || '[]');
@@ -913,6 +915,21 @@ function applyLang(){
   $t('modal-label',T.modalLabel); $h('modal-note',T.modalNote);
   $t('modal-cancel',T.modalCancel); $t('modal-save',T.modalSave);
   renderHistory();
+}
+
+function toggleRunbookMode(){
+  runbookMode = !runbookMode;
+  localStorage.setItem('it_runbook', runbookMode);
+  applyRunbookMode();
+}
+
+function applyRunbookMode(){
+  document.body.classList.toggle('runbook-mode', runbookMode);
+  const btn = document.getElementById('runbookBtn');
+  const icon = document.getElementById('runbookIcon');
+  if(btn) btn.classList.toggle('active', runbookMode);
+  if(icon) icon.textContent = runbookMode ? '🤖' : '📋';
+  if(btn) btn.title = runbookMode ? 'AI 模式' : 'Runbook 模式';
 }
 
 function toggleLang(){
@@ -1227,23 +1244,6 @@ function saveProviderSettings(){
   localStorage.setItem('it_provider', currentProvider);
   updateStatus();
   closeModal();
-}
-
-let runbookMode = localStorage.getItem('it_runbook') === 'true';
-
-function toggleRunbookMode(){
-  runbookMode = !runbookMode;
-  localStorage.setItem('it_runbook', runbookMode);
-  applyRunbookMode();
-}
-
-function applyRunbookMode(){
-  document.body.classList.toggle('runbook-mode', runbookMode);
-  const btn = document.getElementById('runbookBtn');
-  const icon = document.getElementById('runbookIcon');
-  if(btn) btn.classList.toggle('active', runbookMode);
-  if(icon) icon.textContent = runbookMode ? '🤖' : '📋';
-  if(btn) btn.title = runbookMode ? 'AI 模式' : 'Runbook 模式';
 }
 
 </script>
