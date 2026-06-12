@@ -2,7 +2,7 @@
 
 # IT Diagnostic Agent — Smart IT Troubleshooting Assistant
 
-> Interactive decision tree + AI diagnostics — free, open-source, built for IT engineers
+> Interactive decision tree + guided deep diagnosis + AI — free, open-source, built for IT engineers
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Static](https://img.shields.io/badge/deploy-static%20HTML-blue)
@@ -13,12 +13,36 @@
 ## Features
 
 - **Interactive Decision Tree** — Network, Hardware, Software diagnostic modules
+- **Guided Deep Diagnosis** — Step-by-step YES/NO flow, perfect for 3am troubleshooting
 - **Runbook Mode** — Hide AI panel, pure decision tree for enterprise SOP demos
 - **Multi-Model Support** — Claude, Gemini, OpenAI-compatible, Ollama local models
 - **Ollama Setup Guide** — Confirmation checklist when switching to local model
 - **Dark / Light Theme** — One-click toggle, saved automatically
 - **Zero-dependency** — Pure static HTML, no backend required
 - **Traditional Chinese / English** bilingual interface
+
+---
+
+## Guided Deep Diagnosis
+
+Click the **🔍 Deep Diagnosis** button to enter guided step mode:
+
+- **Step-by-step YES/NO questions** — one question at a time, no information overload
+- **Expandable technical details** — commands, cable color codes, beep codes, etc.
+- **Three result types**:
+  - ✓ **Resolved** — Root cause found, fix steps provided
+  - → **Recommended Action** — Intermediate result, continue or Ask AI
+  - ⚠ **Escalate** — Beyond L1 scope, includes what to prepare for L2
+- **Back button** — Step back if you went the wrong way
+- **Ask AI button** — Sends current diagnostic context directly to AI chat
+
+### Supported Deep Diagnosis Scenarios
+
+| Scenario | Steps | Coverage |
+|----------|-------|----------|
+| 🖥️ PC/Server Won't Boot | 8 steps | Power → PSU → POST/Beep → RAM → Board visual → Minimal config → CMOS reset |
+| 🌐 Network Disconnection | 8 steps | Scope → Link light → Cable tester/568B → IP → Ping gateway → Ping 8.8.8.8 → DNS |
+| 🖨️ Printer Not Printing | 8 steps | Power → Jam/supplies → Ping IP → Print queue → Test from other PC → Self-test → Driver → GPO |
 
 ---
 
@@ -45,10 +69,10 @@
 
 ## Enterprise Deployment — 3 Phases
 
-### Phase 1: Runbook Mode Only (Start Here)
-Click the 📋 button to enable Runbook Mode — hides AI panel, shows decision tree only.
+### Phase 1: Runbook Mode Only
+Click the 📋 button to enable Runbook Mode — hides AI panel.
 - Zero security risk, no external connections
-- Let new staff follow the decision tree to validate your IT workflows
+- Pair with Guided Deep Diagnosis for new staff independence
 
 ### Phase 2: Cloud LLM (Low-sensitivity cases)
 Good for: Printers, Outlook, DNS, Wi-Fi, NAS.
@@ -79,13 +103,12 @@ open index.html
 ### Local Deployment
 ```bash
 # Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh   # Linux/Mac
-# Windows: download installer from ollama.com
+curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull a model
-ollama pull gemma3:12b       # Recommended starter
-ollama pull qwen3:8b         # Chinese-optimized
-ollama pull gemma4:e2b       # Lightweight
+# Pull models
+ollama pull gemma3:12b
+ollama pull qwen3:8b
+ollama pull gemma4:e2b
 
 # Start service
 ollama serve
@@ -98,7 +121,6 @@ ollama serve
 export OLLAMA_HOST=0.0.0.0
 ollama serve
 
-# Open port 11434 in firewall
 # Client endpoint: http://192.168.x.x:11434
 ```
 

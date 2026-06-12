@@ -248,6 +248,106 @@ body.light .history-item:hover{background:#f0f2f5}
 body.runbook-mode .chat-panel{display:none!important}
 body.runbook-mode .content{grid-template-columns:1fr!important;grid-template-rows:1fr!important}
 body.runbook-mode .tree-panel{border-right:none!important}
+
+/* ── Guided Steps Overlay ── */
+.guide-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:20px}
+.guide-overlay.open{display:flex}
+.guide-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;overflow:hidden}
+.guide-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.guide-device{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.guide-step-count{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.guide-progress{height:3px;background:var(--border);position:relative}
+.guide-progress-bar{height:100%;background:var(--accent);transition:width .3s ease;border-radius:0}
+.guide-body{padding:28px 24px}
+.guide-step-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
+.guide-step-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.guide-tech-toggle{font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:16px;border:none;background:none;padding:0}
+.guide-tech-toggle:hover{color:var(--text2)}
+.guide-tech-toggle svg{transition:transform .2s}
+.guide-tech-toggle.open svg{transform:rotate(90deg)}
+.guide-tech-detail{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px}
+.guide-tech-detail.open{display:block}
+.guide-tech-detail ul{list-style:none}
+.guide-tech-detail li{font-size:12px;color:var(--text2);padding:3px 0;display:flex;gap:8px}
+.guide-tech-detail li::before{content:'›';color:var(--accent);font-family:var(--mono);flex-shrink:0}
+.guide-tech-detail code{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.guide-choices{display:flex;gap:10px;margin-bottom:8px}
+.guide-btn-no{flex:1;padding:12px;border-radius:var(--radius-lg);border:1px solid rgba(255,68,68,.3);background:rgba(255,68,68,.06);color:var(--danger);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.guide-btn-no:hover{background:rgba(255,68,68,.12);border-color:rgba(255,68,68,.5)}
+.guide-btn-yes{flex:1;padding:12px;border-radius:var(--radius-lg);border:1px solid rgba(0,212,170,.3);background:rgba(0,212,170,.06);color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.guide-btn-yes:hover{background:rgba(0,212,170,.12);border-color:rgba(0,212,170,.5)}
+.guide-result{background:var(--bg3);border-radius:var(--radius-lg);padding:16px;margin-bottom:8px}
+.guide-result-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.guide-result.resolved .guide-result-title{color:var(--accent)}
+.guide-result.escalate .guide-result-title{color:var(--danger)}
+.guide-result.action .guide-result-title{color:var(--warn)}
+.guide-result p{font-size:13px;color:var(--text2);line-height:1.6}
+.guide-result code{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.guide-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.guide-btn-back{font-family:var(--mono);font-size:11px;color:var(--text3);border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0}
+.guide-btn-back:hover{color:var(--text2)}
+.guide-btn-close{font-family:var(--mono);font-size:11px;color:var(--text3);border:1px solid var(--border2);background:transparent;border-radius:var(--radius);padding:5px 12px;cursor:pointer}
+.guide-btn-close:hover{color:var(--text);border-color:var(--border2)}
+.guide-btn-askAI{font-family:var(--mono);font-size:11px;color:var(--accent2);background:rgba(0,153,255,.08);border:1px solid rgba(0,153,255,.2);border-radius:var(--radius);padding:5px 12px;cursor:pointer;transition:all .15s}
+.guide-btn-askAI:hover{background:rgba(0,153,255,.15)}
+/* Deep diagnosis button on node cards */
+.deep-diag-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:var(--radius);padding:4px 10px;cursor:pointer;transition:all .15s}
+.deep-diag-btn:hover{background:rgba(0,212,170,.15);border-color:rgba(0,212,170,.4)}
+/* Light theme */
+body.light .guide-box{background:#fff}
+body.light .guide-tech-detail{background:#f5f7fa}
+body.light .guide-result{background:#f5f7fa}
+body.light .guide-tech-detail code,.body.light .guide-result code{background:#e8eaf0}
+
+/* ── Guided Steps Overlay ── */
+.guide-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:20px}
+.guide-overlay.open{display:flex}
+.guide-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;overflow:hidden}
+.guide-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.guide-device{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.guide-step-count{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.guide-progress{height:3px;background:var(--border);position:relative}
+.guide-progress-bar{height:100%;background:var(--accent);transition:width .3s ease;border-radius:0}
+.guide-body{padding:28px 24px}
+.guide-step-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
+.guide-step-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.guide-tech-toggle{font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:16px;border:none;background:none;padding:0}
+.guide-tech-toggle:hover{color:var(--text2)}
+.guide-tech-toggle svg{transition:transform .2s}
+.guide-tech-toggle.open svg{transform:rotate(90deg)}
+.guide-tech-detail{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px}
+.guide-tech-detail.open{display:block}
+.guide-tech-detail ul{list-style:none}
+.guide-tech-detail li{font-size:12px;color:var(--text2);padding:3px 0;display:flex;gap:8px}
+.guide-tech-detail li::before{content:'›';color:var(--accent);font-family:var(--mono);flex-shrink:0}
+.guide-tech-detail code{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.guide-choices{display:flex;gap:10px;margin-bottom:8px}
+.guide-btn-no{flex:1;padding:12px;border-radius:var(--radius-lg);border:1px solid rgba(255,68,68,.3);background:rgba(255,68,68,.06);color:var(--danger);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.guide-btn-no:hover{background:rgba(255,68,68,.12);border-color:rgba(255,68,68,.5)}
+.guide-btn-yes{flex:1;padding:12px;border-radius:var(--radius-lg);border:1px solid rgba(0,212,170,.3);background:rgba(0,212,170,.06);color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.guide-btn-yes:hover{background:rgba(0,212,170,.12);border-color:rgba(0,212,170,.5)}
+.guide-result{background:var(--bg3);border-radius:var(--radius-lg);padding:16px;margin-bottom:8px}
+.guide-result-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.guide-result.resolved .guide-result-title{color:var(--accent)}
+.guide-result.escalate .guide-result-title{color:var(--danger)}
+.guide-result.action .guide-result-title{color:var(--warn)}
+.guide-result p{font-size:13px;color:var(--text2);line-height:1.6}
+.guide-result code{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.guide-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.guide-btn-back{font-family:var(--mono);font-size:11px;color:var(--text3);border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0}
+.guide-btn-back:hover{color:var(--text2)}
+.guide-btn-close{font-family:var(--mono);font-size:11px;color:var(--text3);border:1px solid var(--border2);background:transparent;border-radius:var(--radius);padding:5px 12px;cursor:pointer}
+.guide-btn-close:hover{color:var(--text);border-color:var(--border2)}
+.guide-btn-askAI{font-family:var(--mono);font-size:11px;color:var(--accent2);background:rgba(0,153,255,.08);border:1px solid rgba(0,153,255,.2);border-radius:var(--radius);padding:5px 12px;cursor:pointer;transition:all .15s}
+.guide-btn-askAI:hover{background:rgba(0,153,255,.15)}
+/* Deep diagnosis button on node cards */
+.deep-diag-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:var(--radius);padding:4px 10px;cursor:pointer;transition:all .15s}
+.deep-diag-btn:hover{background:rgba(0,212,170,.15);border-color:rgba(0,212,170,.4)}
+/* Light theme */
+body.light .guide-box{background:#fff}
+body.light .guide-tech-detail{background:#f5f7fa}
+body.light .guide-result{background:#f5f7fa}
+body.light .guide-tech-detail code,.body.light .guide-result code{background:#e8eaf0}
 </style>
 </head>
 <body>
@@ -347,10 +447,11 @@ body.runbook-mode .tree-panel{border-right:none!important}
 
       <!-- NETWORK -->
       <div class="tree-section active" id="section-net">
-        <div class="node-root">
+        <div class="node-root" style="cursor:default">
           <div class="node-tag" id="nt-net-tag"></div>
           <div class="node-title" id="nt-net-title"></div>
           <div class="node-sub" id="nt-net-sub"></div>
+          <button class="deep-diag-btn" style="margin-top:12px" onclick="startGuide('network')">🔍 深度排查 / Deep Diagnosis</button>
         </div>
         <div class="node-grid cols-2">
           <div>
@@ -434,6 +535,7 @@ body.runbook-mode .tree-panel{border-right:none!important}
             <div class="node-detail">
               <div class="detail-group"><div class="detail-group-title" id="hw-sg1"></div><ul class="step-list" id="hw-ss1"></ul></div>
               <div class="detail-group"><div class="detail-group-title" id="hw-sg2"></div><ul class="step-list" id="hw-ss2"></ul></div>
+              <button class="deep-diag-btn" onclick="startGuide('server')">🔍 深度排查 / Deep Diagnosis</button>
               <button class="ask-btn" onclick="askQ('server')"><span class="ai"></span> &#8599;</button>
             </div>
           </div>
@@ -456,6 +558,7 @@ body.runbook-mode .tree-panel{border-right:none!important}
             <div class="node-detail">
               <div class="detail-group"><div class="detail-group-title" id="hw-pg1"></div><ul class="step-list" id="hw-ps1"></ul></div>
               <div class="detail-group"><div class="detail-group-title" id="hw-pg2"></div><ul class="step-list" id="hw-ps2"></ul></div>
+              <button class="deep-diag-btn" onclick="startGuide('printer')">🔍 深度排查 / Deep Diagnosis</button>
               <button class="ask-btn" onclick="askQ('printer')"><span class="ai"></span> &#8599;</button>
             </div>
           </div>
@@ -573,6 +676,50 @@ body.runbook-mode .tree-panel{border-right:none!important}
 </main>
 </div>
 
+
+
+<!-- GUIDED STEPS OVERLAY -->
+<div class="guide-overlay" id="guideOverlay">
+  <div class="guide-box">
+    <div class="guide-header">
+      <div class="guide-device" id="guideDevice"></div>
+      <div class="guide-step-count" id="guideStepCount"></div>
+    </div>
+    <div class="guide-progress">
+      <div class="guide-progress-bar" id="guideProgressBar" style="width:0%"></div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step-title" id="guideStepTitle"></div>
+      <div class="guide-step-desc" id="guideStepDesc"></div>
+      <button class="guide-tech-toggle" id="guideTechToggle" onclick="toggleGuideTech()">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2l4 3-4 3"/></svg>
+        技術細節 / Technical Details
+      </button>
+      <div class="guide-tech-detail" id="guideTechDetail">
+        <ul class="guide-tech-detail" id="guideTechList"></ul>
+      </div>
+      <div class="guide-choices" id="guideChoices">
+        <button class="guide-btn-no" id="guideBtnNo" onclick="guideAnswer('no')">✗  否</button>
+        <button class="guide-btn-yes" id="guideBtnYes" onclick="guideAnswer('yes')">✓  是</button>
+        <button class="guide-btn-no" id="guideBtnOpt3" style="display:none;background:rgba(0,153,255,.06);border-color:rgba(0,153,255,.3);color:var(--accent2)"></button>
+      </div>
+      <div class="guide-result" id="guideResult" style="display:none">
+        <div class="guide-result-title" id="guideResultTitle"></div>
+        <p id="guideResultBody"></p>
+      </div>
+    </div>
+    <div class="guide-footer">
+      <button class="guide-btn-back" id="guideBtnBack" onclick="guideBack()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2L3 6l4 4"/></svg>
+        上一步 / Back
+      </button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="guide-btn-askAI" id="guideBtnAskAI" style="display:none">詢問 AI ↗</button>
+        <button class="guide-btn-close" onclick="closeGuide()">關閉 / Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- OLLAMA CONFIRM MODAL -->
 <div class="modal-overlay" id="ollamaModalOverlay" onclick="if(event.target===this)cancelOllamaSwitch()">
@@ -1244,6 +1391,474 @@ function saveProviderSettings(){
   localStorage.setItem('it_provider', currentProvider);
   updateStatus();
   closeModal();
+}
+
+
+// ── Guided Steps Data ────────────────────────────────────────────────────────
+const GUIDES = {
+  server: {
+    zh: { title: '主機不開機', device: '硬體 // 主機' },
+    en: { title: 'PC/Server Won\'t Boot', device: 'Hardware // Server' },
+    steps: [
+      {
+        zh: { q: '電源線是否插好？插座確認有電？', desc: '先確認最基本的電源供應，排除人為疏忽。' },
+        en: { q: 'Is the power cable connected? Is the outlet working?', desc: 'Check the basics first — loose cable or dead outlet.' },
+        tech: {
+          zh: ['確認電源線兩端都插牢', '換一個已知正常的插座測試', '確認 UPS 或延長線開關是否開啟', '若有 UPS，確認 UPS 本身是否正常供電'],
+          en: ['Check both ends of power cable are secure', 'Test with a known working outlet', 'Check UPS or power strip switch', 'Verify UPS battery status if applicable']
+        },
+        no: { type: 'action', zh: '重新插好電源線，確認插座有電後再試。', en: 'Re-seat power cable and confirm outlet is live.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '按電源鍵後，PSU 風扇有轉？', desc: '觀察機箱背面的電源供應器風扇是否啟動。' },
+        en: { q: 'Does the PSU fan spin when you press power?', desc: 'Watch the power supply fan at the back of the case.' },
+        tech: {
+          zh: ['短路 24PIN 測試 PSU：用迴紋針連接 PS_ON（綠線）與任一 GND（黑線）', 'PSU 風扇轉 → PSU 正常，問題在主板或其他元件', 'PSU 風扇不轉 → PSU 故障，需更換'],
+          en: ['Paperclip test: short PS_ON (green) to any GND (black) on 24-pin connector', 'Fan spins → PSU OK, issue is motherboard or other component', 'Fan doesn\'t spin → PSU failed, replace it']
+        },
+        no: { type: 'action', zh: '用迴紋針短路 24PIN 腳位測試 PSU。風扇轉代表 PSU 正常，繼續下一步；不轉則更換 PSU。', en: 'Paperclip test the PSU 24-pin. If fan spins PSU is OK; if not, replace PSU.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '開機後的狀態？', desc: '按下電源鍵後，觀察螢幕與主板喇叭的反應。' },
+        en: { q: 'What happens after pressing power?', desc: 'Observe screen and motherboard speaker after pressing the power button.' },
+        tech: {
+          zh: ['一聲短嗶 = POST 成功（AMD/部分主板）', '連續短嗶 = RAM 問題，繼續 Step 4', '一長二短嗶 = 顯示卡問題', '無畫面無聲 = 主板/CPU 問題，跳至 Step 5', '確認螢幕輸入來源（HDMI/DP）是否正確'],
+          en: ['One short beep = POST OK (AMD/some boards)', 'Continuous short beeps = RAM issue, continue Step 4', 'One long + two short = GPU issue', 'No display, no sound = board/CPU issue, go to Step 5', 'Check monitor input source (HDMI/DP)']
+        },
+        type3: true,
+        opt1: { zh: '有 Beep 聲', en: 'Beep sounds heard' },
+        opt2: { zh: '有 POST / 品牌畫面', en: 'POST / brand logo shows' },
+        opt3: { zh: '完全沒反應 / 黑屏無聲', en: 'No response / black screen, silent' },
+        res1: 'next',
+        res2: { type: 'action', zh: '有 POST 畫面代表硬體基本正常。若無法進入 OS，請切換到「軟體問題 → 主機」診斷流程。', en: 'POST screen means hardware is basically OK. Switch to Software diagnostics if OS won\'t load.' },
+        res3: 'step5'
+      },
+      {
+        zh: { q: '拔除所有 RAM 後再逐條插回，是否找到問題條？', desc: '每次只插一條 RAM 測試，找出故障的記憶體模組。' },
+        en: { q: 'After removing all RAM and testing one stick at a time, did you find a bad stick?', desc: 'Test each RAM stick individually to isolate the faulty module.' },
+        tech: {
+          zh: ['拔除所有 RAM → 開機應有連續嗶聲（確認主板/CPU 正常）', '每次插一條 RAM，換不同插槽測試', '若所有單條 RAM 都無法 POST → 問題在主板或 CPU', 'memtest86 可做深度記憶體診斷（需開機進入）'],
+          en: ['Remove all RAM → should hear beeps (confirms board/CPU alive)', 'Insert one stick at a time, try different slots', 'If no single stick works → motherboard or CPU issue', 'memtest86 for deep memory diagnostics']
+        },
+        no: 'next',
+        yes: { type: 'resolved', zh: '✓ 更換故障的 RAM 模組即可解決。建議同批次更換為相同規格。', en: '✓ Replace the faulty RAM stick. Recommend same spec/batch replacement.' }
+      },
+      {
+        zh: { q: '主板目視檢查：電容是否有突起、燒焦或異味？', desc: '仔細觀察主板上的電容（圓柱形元件）頂部是否膨脹，或聞到燒焦味。' },
+        en: { q: 'Visual check: any bulging capacitors, burn marks or burnt smell?', desc: 'Look for swollen capacitor tops or any signs of burning on the motherboard.' },
+        tech: {
+          zh: ['正常電容頂部應為平整', '膨脹電容（頂部凸起）= 電容損壞，主板需更換', '燒焦痕跡通常在 MOSFET 或 VRM 區域附近', '異味來源：先確認是否為新主板正常燒附'],
+          en: ['Healthy capacitors have flat tops', 'Bulging caps = failed capacitor, board needs replacement', 'Burn marks often near MOSFET/VRM area', 'Burnt smell: confirm it\'s not just new board burn-in']
+        },
+        no: 'next',
+        yes: { type: 'escalate', zh: '⚠ 主板硬體損壞。需更換主板，建議送廠維修或採購備品。記錄主板型號以便採購。', en: '⚠ Physical board damage detected. Replace motherboard. Document model number for procurement.' }
+      },
+      {
+        zh: { q: '拆至最小系統後（CPU + 1條RAM + 內顯/顯卡）能 POST？', desc: '移除所有非必要元件：硬碟、光碟機、額外顯卡、PCI 裝置，只保留最基本的開機元件。' },
+        en: { q: 'Does it POST with minimal config (CPU + 1 RAM + GPU only)?', desc: 'Remove all non-essential parts: drives, extra cards, PCIe devices. Keep only what\'s needed to boot.' },
+        tech: {
+          zh: ['最小系統 = CPU + 散熱器 + 1條RAM + 顯示輸出（內顯或獨顯）+ 電源', '能 POST → 逐一插回其他裝置，找出衝突元件', '不能 POST → CPU 或主板故障', '重新塗抹散熱膏（若 CPU 過熱保護）'],
+          en: ['Minimal = CPU + cooler + 1 RAM + display output + PSU', 'POSTs → add parts back one by one to find conflict', 'Won\'t POST → CPU or motherboard failure', 'Re-apply thermal paste if thermal protection triggered']
+        },
+        no: { type: 'escalate', zh: '⚠ 最小系統仍無法 POST，判斷為 CPU 或主板故障。建議送修或更換。記錄序號與保固狀態。', en: '⚠ Minimal system won\'t POST. CPU or motherboard failure. Send for repair or replace. Document S/N and warranty.' },
+        yes: { type: 'action', zh: '逐一插回元件（每次插一個並開機測試），找出造成無法開機的衝突裝置。常見元件：獨立顯卡、PCI-E 裝置、SATA 裝置。', en: 'Add components back one at a time, booting each time to isolate the conflicting device. Common culprits: GPU, PCIe cards, SATA devices.' }
+      },
+      {
+        zh: { q: '重置 CMOS 後是否能正常 POST？', desc: '移除主板上的 CMOS 紐扣電池，等待 30 秒後重新裝回，或使用主板上的 CMOS RESET 按鈕/跳線。' },
+        en: { q: 'Does it POST after CMOS reset?', desc: 'Remove the CMOS coin battery for 30 seconds, then reinstall. Or use the CMOS RESET button/jumper on the board.' },
+        tech: {
+          zh: ['CMOS 電池位置：主板上的銀色圓形電池（CR2032）', 'CMOS RESET 跳線通常標示為 JBAT1 或 CLR_CMOS', '重置後 BIOS 設定恢復出廠，需重新設定時間與開機順序', 'CMOS 電池壽命約 3-5 年，電壓不足會造成開機問題'],
+          en: ['CMOS battery: silver coin cell (CR2032) on motherboard', 'CMOS reset jumper usually labeled JBAT1 or CLR_CMOS', 'After reset, BIOS returns to factory defaults — reconfigure boot order', 'CMOS battery life ~3-5 years; low voltage causes boot issues']
+        },
+        no: { type: 'escalate', zh: '⚠ 所有步驟均已嘗試，仍無法開機。建議升級二線工程師或送原廠維修。開單記錄所有已排查項目。', en: '⚠ All steps exhausted. Escalate to L2 engineer or send for manufacturer repair. Document all checked items.' },
+        yes: { type: 'resolved', zh: '✓ CMOS 重置解決問題。BIOS 設定已清除，請重新設定系統時間、開機順序及其他必要設定。建議更換 CMOS 電池。', en: '✓ CMOS reset resolved the issue. Reconfigure BIOS settings: time, boot order, and other settings. Consider replacing CMOS battery.' }
+      },
+      {
+        zh: { q: '以上所有步驟均已嘗試，問題是否解決？', desc: '確認目前狀態。' },
+        en: { q: 'After all steps above, is the issue resolved?', desc: 'Confirm current status.' },
+        tech: { zh: [], en: [] },
+        no: { type: 'escalate', zh: '⚠ 升級二線支援。開單時請附上：已排查的步驟清單、設備型號與序號、購買日期與保固狀態。', en: '⚠ Escalate to L2. Include: checklist of steps tried, device model/serial, purchase date and warranty status.' },
+        yes: { type: 'resolved', zh: '✓ 問題已解決！建議記錄故障原因與解決方式，更新 IT 資產台帳。', en: '✓ Issue resolved! Document root cause and fix. Update IT asset register.' }
+      }
+    ]
+  },
+
+  network: {
+    zh: { title: '網路斷線排查', device: '網路 // 斷線' },
+    en: { title: 'Network Disconnection', device: 'Network // Offline' },
+    steps: [
+      {
+        zh: { q: '只有這台電腦斷線，還是全辦公室？', desc: '確認故障範圍，決定排查方向。' },
+        en: { q: 'Is only this PC offline, or the whole office?', desc: 'Determine the scope of the outage.' },
+        tech: {
+          zh: ['詢問同事確認其他電腦是否正常', '檢查網路設備（Router/Switch）的燈號是否正常', '全斷 = 上游問題（ISP/Router/Switch）', '只有一台 = 本機或網路線/無線設定問題'],
+          en: ['Ask colleagues if their PCs are working', 'Check indicator lights on router/switch', 'All down = upstream issue (ISP/Router/Switch)', 'One PC = local issue (cable/NIC/wireless settings)']
+        },
+        no: { type: 'action', zh: '全辦公室斷線，跳至 Step 5 排查上游問題。', en: 'Whole office down — skip to Step 5 for upstream diagnosis.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '網路線連線燈（NIC/Switch port）是否亮起？', desc: '確認實體連線層（L1）是否正常。' },
+        en: { q: 'Is the link light on (NIC/Switch port)?', desc: 'Check physical Layer 1 connectivity.' },
+        tech: {
+          zh: ['網路卡燈號：橙/綠色燈亮 = 實體連線正常', 'Switch port 燈號：不亮 = 線路或 Switch 問題', '嘗試換一個 Switch port 測試', '確認網路卡是否已停用（裝置管理員）'],
+          en: ['NIC light: amber/green = physical link OK', 'Switch port light off = cable or switch issue', 'Try a different switch port', 'Check Device Manager — NIC may be disabled']
+        },
+        no: 'next',
+        yes: 'next'
+      },
+      {
+        zh: { q: '用測線器測試網路線：是否正常？', desc: '使用網路測線器確認網路線的連通性與線序是否正確。' },
+        en: { q: 'Cable tester result: is the cable OK?', desc: 'Use a cable tester to check continuity and wire order.' },
+        tech: {
+          zh: ['測線器 1-2-3-4-5-6-7-8 順序全亮 = 正常直通線', '568B 標準線序：橙白-橙-綠白-藍-藍白-綠-棕白-棕', '若對線錯誤或斷線 → 重新壓製水晶頭', '若測線器顯示短路 → 網路線損壞，需更換', '直通線（Straight-through）用於 PC → Switch'],
+          en: ['Tester shows 1-2-3-4-5-6-7-8 all lit = straight-through cable OK', '568B order: O/W - O - G/W - B - B/W - G - Br/W - Br', 'Wrong order or break → re-crimp the RJ45 connector', 'Short circuit shown → cable damaged, replace', 'Straight-through cable: PC → Switch']
+        },
+        no: { type: 'action', zh: '重新壓製水晶頭（確認 568B 線序：橙白-橙-綠白-藍-藍白-綠-棕白-棕），或更換新網路線。', en: 'Re-crimp RJ45 (568B: O/W-O-G/W-B-B/W-G-Br/W-Br) or replace cable.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: 'ipconfig /all 確認 IP 是否正常取得？（非 169.x.x.x）', desc: '在命令提示字元執行 ipconfig /all，確認 IP 位址是否在正確的網段範圍內。' },
+        en: { q: 'Run ipconfig /all — is the IP valid (not 169.x.x.x)?', desc: 'Open CMD and run ipconfig /all. Check if IP is in the correct subnet range.' },
+        tech: {
+          zh: ['169.254.x.x = APIPA，代表 DHCP 取得失敗', '執行：ipconfig /release 然後 ipconfig /renew', '確認 DHCP 伺服器是否正常（詢問網管）', '若需要靜態 IP，確認 IP/閘道/DNS 設定正確'],
+          en: ['169.254.x.x = APIPA, means DHCP failed', 'Run: ipconfig /release then ipconfig /renew', 'Confirm DHCP server is running (check with admin)', 'For static IP, verify IP/gateway/DNS settings']
+        },
+        no: { type: 'action', zh: '執行 ipconfig /release 然後 ipconfig /renew 重新取得 IP。若持續失敗，確認 DHCP 伺服器是否正常，或改用靜態 IP。', en: 'Run ipconfig /release then /renew. If it keeps failing, check DHCP server or use static IP.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '能 ping 通預設閘道？（ping 閘道 IP）', desc: '確認本機到 Router/閘道的連線是否正常。執行：ping [閘道 IP]，例如 ping 192.168.1.1' },
+        en: { q: 'Can you ping the default gateway?', desc: 'Test: ping [gateway IP] e.g. ping 192.168.1.1' },
+        tech: {
+          zh: ['ipconfig 查看預設閘道 IP', '能 ping 閘道 = 本機到 Router 正常', '不能 ping 閘道 = 本機網路設定問題或 Switch 問題', '確認防火牆是否封鎖 ICMP'],
+          en: ['Check default gateway IP with ipconfig', 'Can ping = local to router connection OK', "Can't ping = local config or switch issue", 'Check firewall ICMP rules']
+        },
+        no: { type: 'action', zh: '本機到閘道不通。確認 Switch/Hub 是否正常，或重新設定網路卡 IP 設定。', en: "Can't reach gateway. Check switch/hub status or reconfigure NIC IP settings." },
+        yes: 'next'
+      },
+      {
+        zh: { q: '能 ping 通 8.8.8.8？（對外連線測試）', desc: '執行：ping 8.8.8.8 測試是否能到達外部網路（不經 DNS）。' },
+        en: { q: 'Can you ping 8.8.8.8? (External connectivity test)', desc: 'Run: ping 8.8.8.8 — tests internet without DNS.' },
+        tech: {
+          zh: ['ping 8.8.8.8 成功 = 網路正常，問題在 DNS', 'ping 8.8.8.8 失敗 = ISP 線路問題或 Router 問題', 'tracert 8.8.8.8 可找出斷點位置', 'Request timed out ≠ 封包遺失（防火牆可能封鎖 ICMP）'],
+          en: ['ping 8.8.8.8 OK = network fine, DNS issue', 'ping 8.8.8.8 fail = ISP or router issue', 'tracert 8.8.8.8 to find break point', 'Request timed out ≠ packet loss (firewall may block ICMP)']
+        },
+        no: { type: 'action', zh: 'ISP 線路問題。重啟數據機（等 30 秒後重開）。若仍無法連線，聯絡 ISP 報修並記錄案號。啟用 4G/5G 備援網路。', en: 'ISP issue. Reboot modem (wait 30 sec). If still down, contact ISP and get ticket number. Enable 4G/5G backup.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: 'DNS 解析是否正常？（nslookup google.com）', desc: '執行：nslookup google.com 確認 DNS 是否能正確解析網域名稱。' },
+        en: { q: 'DNS resolving OK? (nslookup google.com)', desc: 'Run: nslookup google.com to check DNS resolution.' },
+        tech: {
+          zh: ['nslookup 回傳 IP = DNS 正常', 'nslookup 超時或錯誤 = DNS 問題', '清除 DNS 快取：ipconfig /flushdns', '改用 Google DNS（8.8.8.8）或 Cloudflare（1.1.1.1）測試', '確認防火牆未封鎖 UDP 53'],
+          en: ['nslookup returns IP = DNS OK', 'nslookup timeout/error = DNS issue', 'Flush DNS: ipconfig /flushdns', 'Try Google DNS (8.8.8.8) or Cloudflare (1.1.1.1)', 'Check firewall allows UDP 53']
+        },
+        no: { type: 'action', zh: '執行 ipconfig /flushdns 清除 DNS 快取。將 DNS 伺服器改為 8.8.8.8（Google）或 1.1.1.1（Cloudflare）測試。', en: 'Run ipconfig /flushdns. Change DNS to 8.8.8.8 (Google) or 1.1.1.1 (Cloudflare) and test.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '問題是否已解決？', desc: '確認網路連線是否恢復正常。' },
+        en: { q: 'Is the network connection restored?', desc: 'Confirm connectivity is back to normal.' },
+        tech: { zh: [], en: [] },
+        no: { type: 'escalate', zh: '⚠ 進階問題：確認 Proxy 設定、防火牆規則、VLAN 設定，或聯絡網路管理員。開單記錄所有已排查步驟。', en: '⚠ Advanced issue: check Proxy, firewall rules, VLAN config, or contact network admin. Log all checked steps.' },
+        yes: { type: 'resolved', zh: '✓ 網路連線已恢復！建議記錄故障原因，避免重複發生。', en: '✓ Network restored! Document root cause to prevent recurrence.' }
+      }
+    ]
+  },
+
+  printer: {
+    zh: { title: '印表機無法列印', device: '硬體 // 印表機' },
+    en: { title: 'Printer Not Printing', device: 'Hardware // Printer' },
+    steps: [
+      {
+        zh: { q: '印表機電源燈是否正常亮起？', desc: '確認印表機是否有電源，燈號是否顯示 Ready 狀態。' },
+        en: { q: 'Is the printer power light on and showing Ready?', desc: 'Check if printer has power and displays a Ready state.' },
+        tech: {
+          zh: ['電源燈熄滅 = 確認電源線與電源開關', '橙色/紅色燈 = 錯誤狀態（卡紙/耗材/硬體故障）', '綠色/藍色燈閃爍 = 正在處理', '綠色/藍色燈常亮 = Ready 待機中'],
+          en: ['No light = check power cable and switch', 'Orange/red light = error state (jam/supply/hardware)', 'Green/blue blinking = processing', 'Green/blue solid = Ready']
+        },
+        no: { type: 'action', zh: '確認電源線是否插好，電源開關是否開啟。嘗試重新開機（關閉電源等待 10 秒後重開）。', en: 'Check power cable and power switch. Try power cycling (off 10 seconds, then on).' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '印表機是否有卡紙或耗材警告？', desc: '查看印表機螢幕或燈號是否有卡紙、碳粉/墨水不足的提示。' },
+        en: { q: 'Any paper jam or supply warnings on the printer?', desc: 'Check printer display or indicator lights for jam or low ink/toner alerts.' },
+        tech: {
+          zh: ['卡紙：順著紙張走紙方向輕輕拉出，避免撕裂', '若紙張已撕裂，需打開所有蓋板徹底清除碎紙', '碳粉/墨水不足：更換前先搖晃碳粉匣（雷射）延長使用', '感光鼓壽命 = 獨立計算，與碳粉不同'],
+          en: ['Paper jam: pull paper gently in feed direction, don\'t tear', 'If paper tears, open all covers to remove all fragments', 'Low toner: shake cartridge (laser) to extend life before replacing', 'Drum unit life = separate counter from toner']
+        },
+        no: 'next',
+        yes: { type: 'action', zh: '清除卡紙或更換耗材（碳粉匣/墨水匣/感光鼓）。清除後重新啟動印表機。', en: 'Clear paper jam or replace supplies (toner/ink/drum). Restart printer after.' }
+      },
+      {
+        zh: { q: '電腦能 ping 通印表機 IP？', desc: '在命令提示字元執行：ping [印表機 IP]，確認網路連線正常。' },
+        en: { q: 'Can you ping the printer IP?', desc: 'Run: ping [printer IP] in CMD to verify network connectivity.' },
+        tech: {
+          zh: ['印表機 IP 查詢：印表機控制面板 → 網路設定 / 列印設定頁', '建議將印表機設為靜態 IP（避免 DHCP 每次變動）', 'ping 成功但仍無法列印 = 驅動或通訊協定問題', '確認 TCP/IP 9100 port 是否開放'],
+          en: ['Find printer IP: printer control panel → network settings / print config page', 'Set static IP on printer to avoid DHCP address changes', 'ping OK but can\'t print = driver or protocol issue', 'Check TCP port 9100 is accessible']
+        },
+        no: { type: 'action', zh: '網路不通。確認印表機 IP 設定，建議改為靜態 IP。確認 Switch port 是否正常，或重啟印表機的網路介面。', en: "Network unreachable. Check printer IP config, set static IP. Verify switch port or restart printer's network interface." },
+        yes: 'next'
+      },
+      {
+        zh: { q: '列印佇列是否有卡住的工作？', desc: '開啟「裝置和印表機」，雙擊印表機圖示，查看是否有卡住的列印工作。' },
+        en: { q: 'Any stuck jobs in the print queue?', desc: 'Open Devices and Printers, double-click printer, check for stuck print jobs.' },
+        tech: {
+          zh: ['手動清除：停止 Print Spooler 服務 → 刪除 C:\Windows\System32\spool\PRINTERS 下所有檔案 → 重啟服務', 'CMD 快速清除：net stop spooler → del /Q /F /S "%systemroot%\System32\spool\PRINTERS\*.*" → net start spooler', '若佇列工作無法刪除，需重啟 Print Spooler 服務'],
+          en: ['Manual clear: stop Print Spooler → delete all files in C:\Windows\System32\spool\PRINTERS → restart service', 'CMD quick fix: net stop spooler → del /Q /F /S "%systemroot%\System32\spool\PRINTERS\*.*" → net start spooler', 'If jobs won\'t delete, restart Print Spooler service']
+        },
+        no: 'next',
+        yes: { type: 'action', zh: '停止 Print Spooler 服務，清除 spool 資料夾下所有檔案，重新啟動服務。CMD 指令：net stop spooler → 刪除暫存檔 → net start spooler', en: 'Stop Print Spooler, clear spool folder, restart service. CMD: net stop spooler → delete temp files → net start spooler' }
+      },
+      {
+        zh: { q: '從其他電腦列印是否正常？', desc: '嘗試從另一台電腦發送列印工作，確認問題是否僅在這台電腦。' },
+        en: { q: 'Can another PC print to this printer?', desc: 'Test printing from another computer to isolate whether the issue is PC-specific.' },
+        tech: {
+          zh: ['其他電腦可以印 = 問題在這台電腦的驅動或設定', '其他電腦也不能印 = 印表機本身問題', '若共用印表機是透過印表機伺服器，檢查伺服器狀態'],
+          en: ['Other PC can print = driver or setting issue on this PC', "Other PC can't print either = printer itself is the issue", 'If shared via print server, check server status']
+        },
+        no: 'next',
+        yes: { type: 'action', zh: '問題在這台電腦的驅動。從印表機官網下載最新驅動，移除舊驅動後重新安裝。', en: "Driver issue on this PC. Download latest driver from manufacturer's website, remove old driver and reinstall." }
+      },
+      {
+        zh: { q: '按印表機本身的測試列印按鈕，能印出測試頁？', desc: '不透過電腦，直接從印表機面板執行測試列印，確認印表機硬體是否正常。' },
+        en: { q: 'Can the printer print a self-test page from its own panel?', desc: 'Bypass the PC — trigger a test print directly from the printer panel.' },
+        tech: {
+          zh: ['測試列印方式依品牌不同（通常在設定 → 報告 → 列印測試頁）', '能印出測試頁 = 印表機硬體正常，問題在網路或驅動', '不能印出測試頁 = 印表機硬體故障'],
+          en: ['Test print location varies by brand (usually Settings → Reports → Print Test Page)', 'Self-test OK = hardware fine, issue is network or driver', "Can't self-test = hardware failure"]
+        },
+        no: { type: 'escalate', zh: '⚠ 印表機硬體故障。聯絡原廠維修或更換印表機。確認保固狀態，記錄型號與序號。', en: '⚠ Printer hardware failure. Contact manufacturer or replace printer. Check warranty, document model/serial.' },
+        yes: 'next'
+      },
+      {
+        zh: { q: '重新安裝驅動程式後是否正常？', desc: '從裝置管理員或控制台移除現有印表機驅動，從官網下載最新版本重新安裝。' },
+        en: { q: 'Does it work after reinstalling the driver?', desc: "Remove existing driver from Device Manager or Control Panel, download latest from manufacturer's website." },
+        tech: {
+          zh: ['完整移除：控制台 → 裝置和印表機 → 右鍵移除裝置 → 列印管理 → 驅動程式 → 移除', '建議使用官方完整套件安裝（不要只裝最小驅動）', '若公司透過 GPO 部署印表機，確認 GPO 設定是否正確'],
+          en: ['Full removal: Control Panel → Devices & Printers → remove device → Print Management → Drivers → remove', 'Use full official installer package (not minimal driver only)', 'If deployed via GPO, verify GPO printer settings']
+        },
+        no: { type: 'escalate', zh: '⚠ 進階問題。確認 GPO 印表機部署設定、連接埠設定（TCP/IP 9100）、防火牆規則。或升級二線處理。', en: '⚠ Advanced issue. Check GPO printer deployment, port settings (TCP/IP 9100), firewall rules. Or escalate to L2.' },
+        yes: { type: 'resolved', zh: '✓ 驅動重裝解決問題！建議記錄正確的驅動版本號，方便日後維護。', en: '✓ Driver reinstall resolved the issue! Document the correct driver version for future reference.' }
+      },
+      {
+        zh: { q: '確認 GPO 印表機部署設定後是否正常？', desc: '在 Active Directory 環境中，確認 GPO 的印表機部署設定是否正確。執行 gpresult /h 產生報告確認。' },
+        en: { q: 'Normal after checking GPO printer deployment settings?', desc: 'In AD environments, verify GPO printer deployment. Run gpresult /h to generate a report.' },
+        tech: {
+          zh: ['執行 gpupdate /force 強制套用 GPO', 'gpresult /h C:\gp_report.html 查看 GPO 套用狀況', '確認使用者 OU 是否在印表機 GPO 的套用範圍內', '確認連接埠 IP 是否與印表機目前 IP 一致'],
+          en: ['Run gpupdate /force to re-apply GPO', 'gpresult /h C:\gp_report.html to check GPO application', 'Verify user OU is within GPO scope', 'Confirm port IP matches current printer IP']
+        },
+        no: { type: 'escalate', zh: '⚠ 所有步驟均已嘗試。升級二線工程師，附上 gpresult 報告與已排查項目清單。', en: '⚠ All steps exhausted. Escalate to L2 with gpresult report and checklist of steps tried.' },
+        yes: { type: 'resolved', zh: '✓ GPO 設定問題已修復！記錄正確的 GPO 設定，避免同樣問題再次發生。', en: '✓ GPO configuration fixed! Document the correct settings to prevent recurrence.' }
+      }
+    ]
+  }
+};
+
+// ── Guide State ───────────────────────────────────────────────────────────────
+let guideState = { device: null, step: 0, history: [] };
+
+function startGuide(device) {
+  guideState = { device, step: 0, history: [] };
+  document.getElementById('guideOverlay').classList.add('open');
+  renderGuideStep();
+}
+
+function closeGuide() {
+  document.getElementById('guideOverlay').classList.remove('open');
+  guideState = { device: null, step: 0, history: [] };
+}
+
+function handleOpt(outcome) {
+  const g = GUIDES[guideState.device];
+  const step = g.steps[guideState.step];
+  const L2 = lang === 'zh' ? 'zh' : 'en';
+
+  if (outcome === 'next') {
+    guideState.step++;
+    renderGuideStep();
+    return;
+  }
+  if (typeof outcome === 'string' && outcome.startsWith('step')) {
+    guideState.step = parseInt(outcome.replace('step','')) - 1;
+    renderGuideStep();
+    return;
+  }
+  if (typeof outcome === 'object') {
+    const resultEl = document.getElementById('guideResult');
+    const titleEl = document.getElementById('guideResultTitle');
+    const bodyEl = document.getElementById('guideResultBody');
+    resultEl.className = 'guide-result ' + outcome.type;
+    const labels = {
+      resolved: { zh: '✓ 問題已解決', en: '✓ Issue Resolved' },
+      escalate: { zh: '⚠ 需要升級處理', en: '⚠ Escalation Required' },
+      action:   { zh: '→ 建議處理步驟', en: '→ Recommended Action' }
+    };
+    titleEl.textContent = labels[outcome.type][L2];
+    bodyEl.innerHTML = outcome[L2];
+    const hasMoreSteps2 = outcome.type === 'action' && guideState.step < g.steps.length - 1;
+    if (hasMoreSteps2) {
+      bodyEl.innerHTML += `<br><button onclick="guideState.step++;renderGuideStep();document.getElementById('guideResult').style.display='none';document.getElementById('guideChoices').style.display='flex';" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:var(--radius);padding:5px 12px;cursor:pointer">${lang==='zh'?'繼續下一步 →':'Continue →'}</button>`;
+    }
+    resultEl.style.display = 'block';
+    document.getElementById('guideChoices').style.display = 'none';
+    document.getElementById('guideBtnBack').style.visibility = 'visible';
+    const askAIBtn = document.getElementById('guideBtnAskAI');
+    if (outcome.type !== 'resolved') {
+      askAIBtn.style.display = 'inline-flex';
+    } else {
+      askAIBtn.style.display = 'none';
+    }
+  }
+}
+
+function renderGuideStep() {
+  const g = GUIDES[guideState.device];
+  const step = g.steps[guideState.step];
+  const total = g.steps.length;
+  const cur = guideState.step + 1;
+  const L2 = lang === 'zh' ? 'zh' : 'en';
+
+  // Header
+  document.getElementById('guideDevice').textContent = g[L2].device;
+  document.getElementById('guideStepCount').textContent = `Step ${cur} / ${total}`;
+  document.getElementById('guideProgressBar').style.width = `${(cur/total)*100}%`;
+
+  // Body
+  document.getElementById('guideStepTitle').textContent = step[L2].q;
+  document.getElementById('guideStepDesc').textContent = step[L2].desc;
+
+  // Tech detail
+  const techList = document.getElementById('guideTechList');
+  const techItems = step.tech[L2];
+  if (techItems && techItems.length > 0) {
+    techList.innerHTML = techItems.map(t => `<li>${t}</li>`).join('');
+    document.getElementById('guideTechToggle').style.display = 'flex';
+    document.getElementById('guideTechDetail').classList.remove('open');
+    document.getElementById('guideTechToggle').classList.remove('open');
+  } else {
+    document.getElementById('guideTechToggle').style.display = 'none';
+    document.getElementById('guideTechDetail').classList.remove('open');
+  }
+
+  // Choices or result
+  const choicesEl = document.getElementById('guideChoices');
+  const resultEl = document.getElementById('guideResult');
+  const extraBtn = document.getElementById('guideBtnOpt3');
+
+  resultEl.style.display = 'none';
+
+  if (step.type3) {
+    // 3-option step
+    choicesEl.style.display = 'flex';
+    choicesEl.style.flexDirection = 'column';
+    document.getElementById('guideBtnNo').textContent = step.opt1[lang==='zh'?'zh':'en'];
+    document.getElementById('guideBtnNo').onclick = () => { guideState.history.push(guideState.step); handleOpt(step.res1); };
+    document.getElementById('guideBtnYes').textContent = step.opt2[lang==='zh'?'zh':'en'];
+    document.getElementById('guideBtnYes').onclick = () => { guideState.history.push(guideState.step); handleOpt(step.res2); };
+    if (extraBtn) {
+      extraBtn.style.display = 'block';
+      extraBtn.textContent = step.opt3[lang==='zh'?'zh':'en'];
+      extraBtn.onclick = () => { guideState.history.push(guideState.step); handleOpt(step.res3); };
+    }
+  } else {
+    choicesEl.style.display = 'flex';
+    choicesEl.style.flexDirection = 'row';
+    if (extraBtn) extraBtn.style.display = 'none';
+    // Update button labels
+    document.getElementById('guideBtnNo').textContent = lang === 'zh' ? '✗  否' : '✗  No';
+    document.getElementById('guideBtnNo').onclick = () => guideAnswer('no');
+    document.getElementById('guideBtnYes').textContent = lang === 'zh' ? '✓  是' : '✓  Yes';
+    document.getElementById('guideBtnYes').onclick = () => guideAnswer('yes');
+  }
+
+  // Back button
+  document.getElementById('guideBtnBack').style.visibility = guideState.step > 0 ? 'visible' : 'hidden';
+}
+
+function guideAnswer(answer) {
+  const g = GUIDES[guideState.device];
+  const step = g.steps[guideState.step];
+  const L2 = lang === 'zh' ? 'zh' : 'en';
+  const outcome = step[answer];
+
+  guideState.history.push(guideState.step);
+
+  if (outcome === 'next') {
+    guideState.step++;
+    renderGuideStep();
+    return;
+  }
+
+  // Handle jump to specific step (e.g. 'step5' = index 4)
+  if (typeof outcome === 'string' && outcome.startsWith('step')) {
+    guideState.step = parseInt(outcome.replace('step','')) - 1;
+    renderGuideStep();
+    return;
+  }
+
+  if (typeof outcome === 'object') {
+    // Show result
+    const resultEl = document.getElementById('guideResult');
+    const titleEl = document.getElementById('guideResultTitle');
+    const bodyEl = document.getElementById('guideResultBody');
+    resultEl.className = 'guide-result ' + outcome.type;
+    const labels = {
+      resolved: { zh: '✓ 問題已解決', en: '✓ Issue Resolved' },
+      escalate: { zh: '⚠ 需要升級處理', en: '⚠ Escalation Required' },
+      action:   { zh: '→ 建議處理步驟', en: '→ Recommended Action' }
+    };
+    titleEl.textContent = labels[outcome.type][L2];
+    bodyEl.innerHTML = outcome[L2];
+    // Add continue button for action type if more steps exist
+    const hasMoreSteps = outcome.type === 'action' && guideState.step < g.steps.length - 1;
+    if (hasMoreSteps) {
+      bodyEl.innerHTML += `<br><button onclick="guideState.step++;renderGuideStep();document.getElementById('guideResult').style.display='none';document.getElementById('guideChoices').style.display='flex';" style="margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:var(--radius);padding:5px 12px;cursor:pointer">${lang==='zh'?'繼續下一步 →':'Continue →'}</button>`;
+    }
+    resultEl.style.display = 'block';
+    document.getElementById('guideChoices').style.display = 'none';
+    document.getElementById('guideBtnBack').style.visibility = 'visible';
+
+    // Show Ask AI button for action/escalate
+    const askAIBtn = document.getElementById('guideBtnAskAI');
+    if (outcome.type !== 'resolved') {
+      askAIBtn.style.display = 'inline-flex';
+      askAIBtn.onclick = () => {
+        const deviceTitle = g[L2].title;
+        const stepQ = step[L2].q;
+        closeGuide();
+        const ci = document.getElementById('chatInput');
+        ci.value = `${deviceTitle}：${stepQ} — ${outcome[L2]}`;
+        autoResize(ci);
+        sendMessage();
+      };
+    } else {
+      askAIBtn.style.display = 'none';
+    }
+    return;
+  }
+
+  // next
+  guideState.step++;
+  renderGuideStep();
+}
+
+function guideBack() {
+  if (guideState.history.length > 0) {
+    guideState.step = guideState.history.pop();
+    renderGuideStep();
+    document.getElementById('guideResult').style.display = 'none';
+    document.getElementById('guideChoices').style.display = 'flex';
+  }
+}
+
+function toggleGuideTech() {
+  const toggle = document.getElementById('guideTechToggle');
+  const detail = document.getElementById('guideTechDetail');
+  toggle.classList.toggle('open');
+  detail.classList.toggle('open');
 }
 
 </script>
